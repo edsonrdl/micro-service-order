@@ -1,10 +1,12 @@
-const http= require('http');
+const express= require('express');
+const app = express();
 
 const port=process.env.PORT;
 
-const server=http.createServer((request,response)=>{
-    response.statusCode=200
-    response.writeHead(200,{'Content-Type':'text/plain'})
-    response.end("Chegou aqui no servdor")
+app.get('/',(request,response)=>{
+    response.send('Seja bem vindo ao endpoint')
 })
-server.listen(port||3000,()=>{console.log("Servidor rodando")});
+app.get('/pessoa',(request,response)=>{
+    response.send('Lucas dos santos')
+})
+app.listen(port||3000,()=>{console.log("Servidor rodando")});

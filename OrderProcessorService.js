@@ -43,7 +43,7 @@ class OrderProcessorService {
     }
   }
   
-  // Inicia o serviço
+
   const orderProcessor = new OrderProcessorService();
   orderProcessor.start();
   

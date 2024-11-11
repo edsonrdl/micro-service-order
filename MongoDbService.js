@@ -12,7 +12,7 @@ class MongoDbService {
       this.client = await MongoClient.connect(this.mongoUrl);
       console.log('Conectado ao MongoDB com sucesso.');
       const db = this.client.db(this.dbName);
-      return db; // Retorne o objeto `db` diretamente
+      return db; 
     } catch (err) {
       console.error('Erro ao conectar ao MongoDB:', err);
       throw err;

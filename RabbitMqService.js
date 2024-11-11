@@ -2,9 +2,9 @@ const amqp = require('amqplib/callback_api');
 
 class RabbitMqService {
   constructor() {
-    this.exchange = 'service_exchange'; // Mesma exchange usada pelo producer em .NET
-    this.queueName = 'order_queue'; // Mesma fila usada pelo producer em .NET
-    this.routingKey = 'order.new'; // Corrigido para combinar com o routingKey usado pelo producer em .NET
+    this.exchange = 'service_exchange'; 
+    this.queueName = 'order_queue'; 
+    this.routingKey = 'order.new'; 
     this.connection = null;
     this.channel = null;
   }
@@ -25,7 +25,7 @@ class RabbitMqService {
 
         this.channel = channel;
 
-        // Configuração da exchange e fila
+
         channel.assertExchange(this.exchange, 'direct', { durable: true });
         channel.assertQueue(this.queueName, { durable: true });
         channel.bindQueue(this.queueName, this.exchange, this.routingKey);
@@ -46,19 +46,18 @@ class RabbitMqService {
     this.channel.consume(this.queueName, (msg) => {
       if (msg !== null) {
         try {
-          // Processa a mensagem recebida
+   
           const messageContent = msg.content.toString();
           console.log(`[x] Mensagem recebida: ${messageContent}`);
 
-          // Parseia a mensagem se necessário
           const parsedMessage = JSON.parse(messageContent);
           console.log('Mensagem processada:', parsedMessage);
 
-          // Confirma a mensagem após processamento bem-sucedido
+
           this.channel.ack(msg);
         } catch (err) {
           console.error('Erro ao processar mensagem:', err);
-          this.channel.nack(msg, false, false); // Opcional: trata mensagens com falha
+          this.channel.nack(msg, false, false); 
         }
       }
     }, { noAck: false });

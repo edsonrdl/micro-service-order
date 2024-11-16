@@ -10,7 +10,7 @@ class OrderProcessorService {
     async start() {
       try {
         const db = await this.mongoDbService.connect();
-        const ordersCollection = db.collection('orders');
+        const ordersCollection = db.collection('ordersCollection');
   
         this.rabbitMqService.connect((channel) => {
           console.log(`[*] Aguardando mensagens na fila "${this.rabbitMqService.queueName}".`);

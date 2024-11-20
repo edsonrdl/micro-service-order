@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-class MongoDbService {
+class MongoDbRepository {
   constructor() {
     this.mongoUrl = 'mongodb://localhost:27017';
     this.dbName = 'orderDatabase';
@@ -27,4 +27,4 @@ class MongoDbService {
   }
 }
 
-module.exports = MongoDbService;
+module.exports = MongoDbRepository;

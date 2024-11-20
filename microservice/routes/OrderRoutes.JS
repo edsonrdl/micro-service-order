@@ -1,26 +1,31 @@
 const express = require('express');
-const router = express.Router();
-const MongoDbService = require('../infrastructure/repositories/MongoDbService');
-const MongoOrderRepository = require('../infrastructure/repositories/MongoOrderRepository');
-const ProcessOrderUseCase = require('../application/usecases/ProcessOrderUseCase');
-const OrderController = require('./controllers/OrderController');
+const ProcessOrderUseService = require('../../application/services/ProcessOrderUseService.js');
+const OrderRepository = require('../../infrastructure/persistence/repositories/orderRepository/OrderRepository.js');
+const MongoDbRepository = require('../../infrastructure/persistence/repositories/mongoRespositories/MongoDbRepository.js');
+const OrderController = require('../controllers/OrderController');
 
-const mongoConfig = {
-    url: process.env.MONGODB_URL,
-    dbName: process.env.MONGODB_DATABASE,
-};
+const router = express.Router();
 
 (async () => {
-    const mongoDbService = new MongoDbService(mongoConfig);
-    const db = await mongoDbService.connect();
-    const orderRepository = new MongoOrderRepository(db);
-    const processOrderUseCase = new ProcessOrderUseCase(orderRepository);
+    try {
+        const dbConfig = {
+            url: process.env.MONGODB_URL,
+            dbName: process.env.MONGODB_DATABASE,
+        };
 
-   
-    const orderController = new OrderController(processOrderUseCase);
+        const mongoDbRepository = new MongoDbRepository(dbConfig);
+        const db = await mongoDbRepository.connect();
+        const orderRepository = new OrderRepository(db);
+        const processOrderUseService = new ProcessOrderUseService(orderRepository);
+        const orderController = new OrderController(processOrderUseService);
 
-   
-    router.post('/orders', (req, res) => orderController.createOrder(req, res));
+        // Define a rota de criação de pedidos
+        router.post('/orders', (req, res) => orderController.createOrder(req, res));
+
+        console.log('Rotas configuradas com sucesso.');
+    } catch (err) {
+        console.error('Erro ao configurar as rotas:', err.message);
+    }
 })();
 
 module.exports = router;

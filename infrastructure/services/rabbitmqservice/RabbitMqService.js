@@ -26,7 +26,6 @@ class RabbitMqService {
             console.log('RabbitMQ conectado e configurado.');
             this.isConnected = true;
 
-            // Listeners para desconexão
             this.connection.on('close', async () => {
                 console.error('Conexão com RabbitMQ foi fechada.');
                 this.isConnected = false;
@@ -58,7 +57,7 @@ class RabbitMqService {
                     this.channel.ack(msg); // Confirma a mensagem
                 } catch (err) {
                     console.error('Erro ao processar mensagem:', err);
-                    this.channel.nack(msg, false, false); // Rejeita a mensagem
+                    this.channel.nack(msg, false, false); 
                 }
             }
         });

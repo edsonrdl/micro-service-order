@@ -1,30 +1,30 @@
 const { MongoClient } = require('mongodb');
 
 class MongoDbRepository {
-  constructor() {
-    this.mongoUrl = 'mongodb://localhost:27017';
-    this.dbName = 'orderDatabase';
-    this.client = null;
-  }
-
-  async connect() {
-    try {
-      this.client = await MongoClient.connect(this.mongoUrl);
-      console.log('Conectado ao MongoDB com sucesso.');
-      const db = this.client.db(this.dbName);
-      return db; 
-    } catch (err) {
-      console.error('Erro ao conectar ao MongoDB:', err);
-      throw err;
+    constructor(config) {
+        this.mongoUrl = config.url;
+        this.dbName = config.dbName;
+        this.client = null;
     }
-  }
 
-  closeConnection() {
-    if (this.client) {
-      this.client.close();
-      console.log('Conexão com MongoDB fechada.');
+    async connect() {
+        try {
+            console.log('Conectando ao MongoDB...');
+            this.client = await MongoClient.connect(this.mongoUrl, { useUnifiedTopology: true });
+            console.log('Conexão com MongoDB bem-sucedida.');
+            return this.client.db(this.dbName);
+        } catch (err) {
+            console.error('Erro ao conectar ao MongoDB:', err.message);
+            throw err;
+        }
     }
-  }
+
+    async closeConnection() {
+        if (this.client) {
+            await this.client.close();
+            console.log('Conexão com MongoDB fechada.');
+        }
+    }
 }
 
 module.exports = MongoDbRepository;

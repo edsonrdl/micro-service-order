@@ -1,6 +1,6 @@
 const Order = require('../../domain/entities/Order');
 
-class ProcessOrderUseCase {
+class ProcessOrderUseService {
     constructor(orderRepository) {
         this.orderRepository = orderRepository;
     }
@@ -17,4 +17,4 @@ class ProcessOrderUseCase {
     }
 }
 
-module.exports = ProcessOrderUseCase;
+module.exports = ProcessOrderUseService;

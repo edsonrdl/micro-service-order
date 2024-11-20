@@ -1,9 +1,12 @@
-const IOrderRepository = require('../../domain/contracts/IOrderRepository');
+const IOrderRepository = require('../../../../domain/useCases/IOrderRepository');
 
 class OrderRepository extends IOrderRepository {
     constructor(db) {
         super();
-        this.collection = db.collection('orders');
+        if (!db) {
+            throw new Error('A instância do banco de dados é obrigatória.');
+        }
+        this.collection = db.collection('ordersCollection');
     }
 
     async save(order) {

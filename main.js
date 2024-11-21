@@ -4,67 +4,48 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const config = require('./config/config');
-const RabbitMqService = require('./infrastructure/services/rabbitmqservice/RabbitMqService');
 const MongoDbRepository = require('./infrastructure/persistence/repositories/mongoRespositories/MongoDbRepository');
 const OrderRepository = require('./infrastructure/persistence/repositories/orderRepository/OrderRepository');
-const ProcessOrderUseService = require('./application/services/ProcessOrderUseService');
+const RabbitMqConsumer = require('./infrastructure/messaging/RabbitMqConsumer');
 const OrderController = require('./microservice/controllers/OrderController');
 const orderRoutes = require('./microservice/routes/OrderRoutes.JS');
 
 (async function startSystem() {
-    const app = express();
+    try {
+        const app = express();
 
 
-    app.use(cors({ origin: config.server.allowedOrigin }));
-    app.use(bodyParser.json());
+        app.use(cors({ origin: config.server.allowedOrigin }));
+        app.use(bodyParser.json());
 
-    const mongoDbRepository = new MongoDbRepository(config.mongoDb);
-    const rabbitMqService = new RabbitMqService();
-
-    while (true) {
-        try {
-            console.log('Iniciando o sistema...');
+        console.log('Inicializando o sistema...');
 
 
-            const db = await mongoDbRepository.connect();
+        const mongoDbRepository = new MongoDbRepository(config.mongoDb);
+        const db = await mongoDbRepository.connect();
+        const orderRepository = new OrderRepository(db);
 
-            await rabbitMqService.connect();
+   
+        const rabbitMqConsumer = new RabbitMqConsumer(config.rabbitMq, orderRepository);
+        await rabbitMqConsumer.start();
 
-            await rabbitMqService.consume(async (message) => {
-                console.log('Mensagem recebida:', message);
+     
+        const orderController = new OrderController(orderRepository);
+        app.use('/api/orders', orderRoutes(orderController));
 
-              
-                try {
-                    const processOrderUseService = new ProcessOrderUseService(orderRepository);
-                    await processOrderUseService.execute(JSON.parse(message));
-                } catch (err) {
-                    console.error('Erro ao processar a mensagem:', err.message);
-                }
-            });
+        app.listen(config.server.port, () => {
+            console.log(`Servidor rodando na porta ${config.server.port}`);
+        });
 
+        process.on('SIGINT', async () => {
+            console.log('\nEncerrando o sistema...');
+            await mongoDbRepository.closeConnection();
+            await rabbitMqConsumer.stop();
+            process.exit(0);
+        });
 
-            const orderRepository = new OrderRepository(db);
-            const processOrderUseService = new ProcessOrderUseService(orderRepository);
-            const orderController = new OrderController(processOrderUseService);
-
- 
-            app.use('/api/orders', orderRoutes(orderController));
-
-            app.listen(config.server.port, () => {
-                console.log(`Servidor rodando na porta ${config.server.port}`);
-            });
-
-            process.on('SIGINT', async () => {
-                console.log('\nEncerrando o sistema...');
-                await mongoDbRepository.closeConnection();
-                process.exit(0);
-            });
-
-            break;
-        } catch (err) {
-            console.error('Erro ao iniciar o sistema:', err.message);
-            console.log(`Tentando reiniciar em ${config.retryInterval / 1000} segundos...`);
-            await new Promise((resolve) => setTimeout(resolve, config.retryInterval));
-        }
+    } catch (err) {
+        console.error('Erro ao iniciar o sistema:', err.message);
+        process.exit(1);
     }
 })();

@@ -10,8 +10,11 @@ class MongoDbRepository {
     async connect() {
         try {
             console.log('Conectando ao MongoDB...');
-            this.client = await MongoClient.connect(this.mongoUrl, { useUnifiedTopology: true });
+            console.log(this.mongoUrl);
+            this.client = await MongoClient.connect(this.mongoUrl);
             console.log('Conexão com MongoDB bem-sucedida.');
+            console.log(this.dbName);
+            console.log(this.client);
             return this.client.db(this.dbName);
         } catch (err) {
             console.error('Erro ao conectar ao MongoDB:', err.message);

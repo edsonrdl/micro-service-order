@@ -1,4 +1,5 @@
-require('dotenv').config();
+require('dotenv').config({ path: './config/.env' });
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -15,6 +16,7 @@ const orderRoutes = require('./microservice/routes/OrderRoutes.JS');
     app.use(cors({ origin: config.server.allowedOrigin }));
     app.use(bodyParser.json());
 
+   // console.log(`Testando config.mongoDb  ${config.mongoDb}`);
     const mongoDbRepository = new MongoDbRepository(config.mongoDb);
 
     while (true) {
@@ -22,6 +24,7 @@ const orderRoutes = require('./microservice/routes/OrderRoutes.JS');
             console.log('Iniciando o sistema...');
 
             const db = await mongoDbRepository.connect();
+            console.log(`Valor do db: ${db}`);
             const orderRepository = new OrderRepository(db);
             const processOrderUseService = new ProcessOrderUseService(orderRepository);
             const orderController = new OrderController(processOrderUseService);

@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const amqp = require('amqplib');
 
 class RabbitMqService {
@@ -17,6 +18,7 @@ class RabbitMqService {
     async connect() {
         try {
             console.log('Tentando conectar ao RabbitMQ...');
+            console.log("TESTANDO"+" "+this.config.url);
             this.connection = await amqp.connect(this.config.url);
             this.channel = await this.connection.createChannel();
             await this.channel.assertExchange(this.config.exchange, 'direct', { durable: true });

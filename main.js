@@ -13,22 +13,41 @@ const orderRoutes = require('./microservice/routes/OrderRoutes.JS');
 
 (async function startSystem() {
     const app = express();
+
+
     app.use(cors({ origin: config.server.allowedOrigin }));
     app.use(bodyParser.json());
 
-   // console.log(`Testando config.mongoDb  ${config.mongoDb}`);
     const mongoDbRepository = new MongoDbRepository(config.mongoDb);
+    const rabbitMqService = new RabbitMqService();
 
     while (true) {
         try {
             console.log('Iniciando o sistema...');
 
+
             const db = await mongoDbRepository.connect();
-            console.log(`Valor do db: ${db}`);
+
+            await rabbitMqService.connect();
+
+            await rabbitMqService.consume(async (message) => {
+                console.log('Mensagem recebida:', message);
+
+              
+                try {
+                    const processOrderUseService = new ProcessOrderUseService(orderRepository);
+                    await processOrderUseService.execute(JSON.parse(message));
+                } catch (err) {
+                    console.error('Erro ao processar a mensagem:', err.message);
+                }
+            });
+
+
             const orderRepository = new OrderRepository(db);
             const processOrderUseService = new ProcessOrderUseService(orderRepository);
             const orderController = new OrderController(processOrderUseService);
 
+ 
             app.use('/api/orders', orderRoutes(orderController));
 
             app.listen(config.server.port, () => {
@@ -43,7 +62,7 @@ const orderRoutes = require('./microservice/routes/OrderRoutes.JS');
 
             break;
         } catch (err) {
-            console.error('Erro ao iniciar o sistema:', err);
+            console.error('Erro ao iniciar o sistema:', err.message);
             console.log(`Tentando reiniciar em ${config.retryInterval / 1000} segundos...`);
             await new Promise((resolve) => setTimeout(resolve, config.retryInterval));
         }

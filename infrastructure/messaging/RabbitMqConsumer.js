@@ -26,7 +26,6 @@ class RabbitMqConsumer {
         } catch (err) {
             console.error('Erro ao iniciar o consumidor RabbitMQ:', err.message);
 
-            // Agenda reconexão em caso de falha
             await this.scheduler.schedule(() => this.start());
         }
     }

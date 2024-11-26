@@ -117,7 +117,7 @@ Após configurar a API principal e garantir que os containers do RabbitMQ e da A
 
   Dados persistidos no banco:
 
-  ![Dados no MongoDB](https://github.com/user-attachments/assets/0c14d902-67eb-4966-98ba-6a8bdf5abf94)
+  ![Dados no MongoDB](https://github.com/user-attachments/assets/4a1e7d31-0f37-4c4d-bb17-df57a24b146f)
 
 ---
 
@@ -131,4 +131,4 @@ Após configurar a API principal e garantir que os containers do RabbitMQ e da A
 
 - Utilize o Swagger para enviar requisições de teste e verificar o funcionamento do serviço.
 
-  ![Exemplo com Swagger](https://github.com/user-attachments/assets/0c14d902-67eb-4966-98ba-6a8bdf5abf94)
+  ![Exemplo com Swagger](https://github.com/user-attachments/assets/bc808a39-ccfd-41ee-a9c6-15fee41c4fea)
